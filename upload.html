@@ -136,7 +136,7 @@
     <h2>Unggah Karya Baru</h2>
     
     <form id="uploadForm">
-      <label for="divisi-select">Divisi Kategori</label>
+      <label for="divisi-select">Divisi</label>
       <select id="divisi-select" name="divisi" required>
         <option value="" disabled selected>-- Pilih Divisi Anda --</option>
         <option value="Coding">Divisi Coding</option>
@@ -163,7 +163,7 @@
     const divisiSelect = document.getElementById('divisi-select');
 
     // ⚠️ GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA SETELAH DI-DEPLOY
-    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/XXXXX/exec"; 
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/library/d/10bnyeRqBrrJr3TZeDCKikR_9A_AazDfzQOm5jxZIfHGLqrAUAoLMohaY/1"; 
 
     // Mengubah efek teks saat file terpilih
     fileChooser.addEventListener('change', function() {
