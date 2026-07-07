@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Karya Divisi</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #fafafa;
+      color: #262626;
+      padding-bottom: 50px;
+    }
+
+    /* Header Navigasi */
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #dbdbdb;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 15px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .container {
+      max-width: 935px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Bagian Filter / Kategori Menu */
+    .filter-menu {
+      display: flex;
+      justify-content: center;
+      border-top: 1px solid #dbdbdb;
+      margin-top: 20px;
+      gap: 30px;
+    }
+
+    .filter-btn {
+      background: none;
+      border: none;
+      border-top: 1px solid transparent;
+      color: #8e8e8e;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 15px 0;
+      text-transform: uppercase;
+      margin-top: -1px;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn.active {
+      color: #262626;
+      border-top: 1px solid #262626;
+    }
+
+    /* Tampilan Grid Ala Instagram */
+    .instagram-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-top: 20px;
+    }
+
+    .grid-item {
+      position: relative;
+      width: 100%;
+      padding-top: 100%; /* Membuat aspek rasio persegi 1:1 */
+      background-color: #efefef;
+      overflow: hidden;
+      cursor: pointer;
+      border: 1px solid #dbdbdb;
+    }
+
+    .grid-item img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Efek Overlay saat Kursor Diarahkan (Hover) */
+    .item-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      color: white;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .grid-item:hover .item-overlay {
+      opacity: 1;
+    }
+
+    .item-overlay .category-tag {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .item-overlay .file-name {
+      font-size: 13px;
+      font-weight: 600;
+      max-width: 90%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Loading state */
+    .loading-status {
+      text-align: center;
+      padding: 50px 0;
+      font-size: 16px;
+      color: #8e8e8e;
+    }
+
+    /* Responsif untuk HP */
+    @media (max-width: 735px) {
+      .instagram-grid {
+        gap: 3px; /* Jarak super tipis ala Instagram mobile */
+      }
+      .filter-menu {
+        gap: 15px;
+      }
+      .filter-btn {
+        font-size: 10px;
+      }
+      .container {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Showcase Karya</h1>
+  </header>
+
+  <div class="container">
+    <div class="filter-menu">
+      <button class="filter-btn active" onclick="filterGallery('All', this)">Semua</button>
+      <button class="filter-btn" onclick="filterGallery('Coding', this)">Coding</button>
+      <button class="filter-btn" onclick="filterGallery('Digital Art', this)">Digital Art</button>
+      <button class="filter-btn" onclick="filterGallery('Film', this)">Film</button>
+      <button class="filter-btn" onclick="filterGallery('Fotografi', this)">Fotografi</button>
+    </div>
+
+    <div id="loading" class="loading-status">Memuat file dari Google Drive...</div>
+    <div class="instagram-grid" id="galleryGrid" style="display: none;"></div>
+  </div>
+
+  <script>
+    // GANTI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/XXXXX/exec"; 
+
+    let masterData = []; // Menyimpan semua data mentah dari server
+
+    // Fungsi pertama kali halaman dibuka
+    document.addEventListener("DOMContentLoaded", function() {
+      fetchGalleryData();
+    });
+
+    // Mengambil data dari Google Apps Script (Method GET)
+    function fetchGalleryData() {
+      fetch(URL_APPS_SCRIPT)
+        .then(response => response.json())
+        .then(res => {
+          if (res.status === "success") {
+            masterData = res.data;
+            renderGrid(masterData);
+          } else {
+            document.getElementById("loading").innerText = "Gagal memuat data: " + res.message;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          document.getElementById("loading").innerText = "Terjadi kesalahan koneksi internet.";
+        });
+    }
+
+    // Fungsi merender struktur HTML Grid berdasarkan data
+    function renderGrid(files) {
+      const grid = document.getElementById("galleryGrid");
+      const loading = document.getElementById("loading");
+      
+      grid.innerHTML = ""; // Bersihkan isi grid terdahulu
+      
+      if (files.length === 0) {
+        loading.innerText = "Tidak ada file di kategori ini.";
+        loading.style.display = "block";
+        grid.style.display = "none";
+        return;
+      }
+      
+      loading.style.display = "none";
+      grid.style.display = "grid";
+
+      files.forEach(file => {
+        const item = document.createElement("div");
+        item.className = "grid-item";
+        // Saat diklik akan membuka tab baru berisi file asli di Google Drive
+        item.onclick = () => window.open(`https://drive.google.com/file/d/${file.id}/view`, '_blank');
+
+        // Gunakan parameter bawaan untuk memperbesar resolusi thumbnail Google Drive (=s300)
+        let thumbUrl = file.thumbnailUrl;
+        if(thumbUrl.includes("=s")) {
+          thumbUrl = thumbUrl.replace(/=s\d+/, "=s300");
+        }
+
+        item.innerHTML = `
+          <img src="${thumbUrl}" alt="${file.name}" loading="lazy">
+          <div class="item-overlay">
+            <span class="category-tag">${file.category}</span>
+            <span class="file-name">${file.name}</span>
+          </div>
+        `;
+        grid.appendChild(item);
+      });
+    }
+
+    // Fungsi filter ketika salah satu tab divisi diklik
+    function filterGallery(category, buttonElement) {
+      // Ubah status tombol aktif di CSS
+      document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+      buttonElement.classList.add("active");
+      
+      if (category === "All") {
+        renderGrid(masterData);
+      } else {
+        // Saring data berdasarkan properti kategori
+        const filtered = masterData.filter(item => item.category.toLowerCase() === category.toLowerCase());
+        renderGrid(filtered);
+      }
+    }
+  </script>
+</body>
+</html>
