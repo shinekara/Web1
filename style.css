@@ -143,6 +143,12 @@ body.light-mode .navbar {
     color:var(--primary); 
 } 
 
+.logo-img {
+    height: 40px; /* Sesuaikan tingginya dengan navbar Anda */
+    width: auto;  /* Biar proporsi lebar gambar otomatis mengikuti */
+    object-fit: contain;
+}
+
 .nav-links{
     display:flex; 
     list-style:none; 
