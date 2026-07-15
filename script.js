@@ -262,7 +262,7 @@ revealElements.forEach(el=>{
    Statistics Counter
 ========================== */
 
-const counters=document.querySelectorAll(".stat-card h2");
+const counters = document.querySelectorAll('.counter');
 
 const counterObserver=new IntersectionObserver(entries=>{
 
